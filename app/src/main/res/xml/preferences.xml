@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceScreen
+        android:key="language_pref"
+        android:title="@string/language_pref">
+
+        <!-- casting cast exception <ListPreference
+            android:key="language_list"
+            android:title="@string/language_list"
+            android:summary="%s"
+            android:entries="@array/language_entries"
+            android:entryValues="@array/language_values"
+            android:defaultValue="empty"/>
+        -->
+        <CheckBoxPreference
+            android:key="cursewords"
+            android:title="@string/cursewords"
+            android:summary="@string/cursewords_summary"
+            android:defaultValue="false" />
+
+    </PreferenceScreen>
+</PreferenceScreen>
