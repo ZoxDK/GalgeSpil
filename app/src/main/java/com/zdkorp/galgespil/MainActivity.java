@@ -4,6 +4,8 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -16,13 +18,32 @@ import android.widget.Toast;
 
 public class MainActivity extends ActionBarActivity implements OnClickListener {
     //Declares
+    private SharedPreferences sharedPrefs;
     private Button newGameButton, savedGameButton, settingsButton, exitButton;
     private AlertDialog.Builder builder;
+    private boolean isThereSavedGame;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //Preferences
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+        sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+        isThereSavedGame = sharedPrefs.getBoolean("saved_game", false);
+        System.out.println("saved_game = " + sharedPrefs.getBoolean("saved_game", false));
+
+        SharedPreferences.OnSharedPreferenceChangeListener listener =
+                new SharedPreferences.OnSharedPreferenceChangeListener()
+                {
+                    public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
+                        if (key.equals("saved_game")) {
+                            isThereSavedGame = sharedPrefs.getBoolean("saved_game", false);
+                        }
+                    }
+                };
+        sharedPrefs.registerOnSharedPreferenceChangeListener(listener);
 
         newGameButton = (Button) findViewById(R.id.newGameButton);
         savedGameButton = (Button) findViewById(R.id.savedGameButton);
@@ -84,7 +105,7 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
     @Override
     public void onClick(View v){
         if (v == newGameButton){
-            if (false) { //saved_game
+            if (isThereSavedGame) {
                 builder.setTitle("Der er et gemt spil.");
                 builder.setMessage("Der er et gemt spil. Vil du starte et nyt?");
                 builder.create().show();
@@ -110,11 +131,13 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
     }
 
     private void loadSavedGame(){
-        Toast.makeText(this, "Load is not implemented yet, start new game!", Toast.LENGTH_LONG).show();
-        //Intent intent = new Intent(this, Game_Act.class);
-        //intent.putExtra("GAME_TYPE", "LOAD");
-
-        //startActivity(intent);
+        if (isThereSavedGame){
+            Intent intent = new Intent(this, Game_Act.class);
+            intent.putExtra("GAME_TYPE", "LOAD");
+            startActivity(intent);
+        }else {
+            Toast.makeText(this, "There is no saved game. Start new game!", Toast.LENGTH_LONG).show();
+        }
     }
 
 }

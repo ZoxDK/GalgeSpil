@@ -4,18 +4,24 @@
         android:key="language_pref"
         android:title="@string/language_pref">
 
-        <!-- casting cast exception <ListPreference
+        <ListPreference
             android:key="language_list"
             android:title="@string/language_list"
             android:summary="%s"
             android:entries="@array/language_entries"
             android:entryValues="@array/language_values"
-            android:defaultValue="empty"/>
-        -->
+            android:defaultValue="Dansk"/>
+
         <CheckBoxPreference
             android:key="cursewords"
             android:title="@string/cursewords"
             android:summary="@string/cursewords_summary"
+            android:defaultValue="false" />
+
+        <CheckBoxPreference
+            android:key="dr_words"
+            android:title="@string/dr_words"
+            android:summary="@string/dr_words_summary"
             android:defaultValue="false" />
 
     </PreferenceScreen>

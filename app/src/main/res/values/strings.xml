@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">GalgeSpil</string>
+    <string name="action_settings">Indstillinger</string>
+    <string name="action_newgame">Nyt spil</string>
+    <string name="action_loadgame">Hent spil</string>
+    <string name="action_savegame">Gem spil</string>
+    <string name="action_exit">Exit</string>
+    <string name="action_show_word">Vis ordet</string>
+
+    <string name="language_pref">Sprog indstillinger</string>
+    <string name="language_list">Sprog - Ikke implementeret</string>
+    <string name="language_summary">Vælg hvilket sprog spillet skal bruge</string>
+    <string name="cursewords">Bandeord</string>
+    <string name="cursewords_summary">Tillad bandeord i spillet</string>
+    <string name="dr_words">Ord fra DR.dk</string>
+    <string name="dr_words_summary">Tillad at der hentes ord fra DR\'s hjemmeside (kræver internet!)</string>
+</resources>
