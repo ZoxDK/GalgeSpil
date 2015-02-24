@@ -71,6 +71,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/letterToGuess"
+            android:singleLine="true"
             android:layout_below="@+id/textView3"
             android:layout_alignLeft="@+id/textView3"
             android:layout_alignStart="@+id/textView3"

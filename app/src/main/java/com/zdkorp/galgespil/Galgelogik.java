@@ -141,7 +141,10 @@ public class Galgelogik {
     String data = hentUrl("http://dr.dk");
     System.out.println("data = "+data);
 
-    data = data.replaceAll("<.+?>", " ").toLowerCase().replaceAll("[^a-zæøå]", " ");
+    data = data.substring(data.indexOf("<body")).
+              replaceAll("<.+?>", " ").toLowerCase().replaceAll("[^a-zæøå]", " ").
+              replaceAll(" . "," "). // fjern 1-bogstavsord
+              replaceAll(" .. "," "); // fjern 2-bogstavsord
     System.out.println("data = "+data);
     muligeOrd.clear();
     muligeOrd.addAll(new HashSet<String>(Arrays.asList(data.split(" "))));

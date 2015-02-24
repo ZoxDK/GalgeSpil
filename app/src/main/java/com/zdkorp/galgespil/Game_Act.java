@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
+import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -48,6 +49,8 @@ public class Game_Act extends ActionBarActivity implements OnClickListener {
         currentWord = (TextView) findViewById(R.id.currentWord);
         guessedLetters = (TextView) findViewById(R.id.guessedLetters);
         letterToGuess = (EditText)  findViewById(R.id.letterToGuess);
+        letterToGuess.setFocusable(true);
+
         guessButton = (Button) findViewById(R.id.guessButton);
         textviewColor = currentWord.getTextColors();
         initializeArray();
@@ -80,6 +83,7 @@ public class Game_Act extends ActionBarActivity implements OnClickListener {
             }
         }); // /end of game dialog
 
+        //Game type chosen in Main menu
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             value = extras.getString("GAME_TYPE");
@@ -96,6 +100,35 @@ public class Game_Act extends ActionBarActivity implements OnClickListener {
             default:
                 newGame();
                 break;
+        }
+
+        // Get words from DR.dk
+        if (sharedPrefs.getBoolean("dr_words", false)) {
+            try {
+                setSupportProgressBarIndeterminateVisibility(true);
+                new AsyncTask() {
+                    @Override
+                    protected Object doInBackground(Object... arg0) {
+                        try {
+                            galgelogik.hentOrdFraDr();
+                            return "Ordene blev korrekt hentet fra DR's server";
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            return "Ordene blev ikke hentet korrekt: " + e;
+                        }
+                    }
+
+                    @Override
+                    protected void onPostExecute(Object resultat) {
+                        System.out.println("resultat: \n" + resultat);
+                        currentWord.setText(galgelogik.getSynligtOrd());
+                        setSupportProgressBarIndeterminateVisibility(false);
+                    }
+                }.execute();
+            } catch (Exception e) {
+                e.printStackTrace();
+                setSupportProgressBarIndeterminateVisibility(false);
+            }
         }
     }
 
@@ -127,7 +160,7 @@ public class Game_Act extends ActionBarActivity implements OnClickListener {
                     .putString("ordet", galgelogik.getOrdet())
                     .putInt("antalforkertebogstaver", galgelogik.getAntalForkerteBogstaver())
                     .putBoolean("saved_game", true)
-                    .commit();
+                    .apply();
             System.out.println("saved_game = " + sharedPrefs.getBoolean("saved_game", false));
         } else if (id == R.id.action_exit){
             finish();
@@ -141,6 +174,19 @@ public class Game_Act extends ActionBarActivity implements OnClickListener {
         if (v == guessButton){
             String letter = letterToGuess.getText().toString();
 
+            if (letter.length() != 1) return;
+
+            galgelogik.gætBogstav(letter);
+
+            if (galgelogik.erSidsteBogstavKorrekt()) {
+                currentWord.setText(galgelogik.getSynligtOrd());
+            } else {
+                currentGalgeImage.setImageResource(images.get(galgelogik.getAntalForkerteBogstaver()-1));
+            }
+            guessedLetters.setText(galgelogik.getBrugteBogstaver().toString());
+            letterToGuess.setText("");
+            galgelogik.logStatus();
+
             if (galgelogik.erSpilletVundet()){
                 builder.setTitle("Du har vundet!");
                 builder.setMessage("Du har vundet spillet! Spil igen?");
@@ -151,20 +197,6 @@ public class Game_Act extends ActionBarActivity implements OnClickListener {
                 builder.create().show();
             }
 
-            if (letter.length() != 1) return;
-
-            galgelogik.gætBogstav(letter);
-            galgelogik.logStatus();
-
-            if (galgelogik.erSidsteBogstavKorrekt()) {
-                currentWord.setText(galgelogik.getSynligtOrd());
-            } else {
-                currentGalgeImage.setImageResource(images.get(galgelogik.getAntalForkerteBogstaver()-1));
-            }
-            guessedLetters.setText(galgelogik.getBrugteBogstaver().toString());
-            letterToGuess.setText("");
-
-
         }
 
     }
@@ -172,6 +204,7 @@ public class Game_Act extends ActionBarActivity implements OnClickListener {
         galgelogik.nulstil();
         currentWord.setTextColor(textviewColor);
         currentWord.setText(galgelogik.getSynligtOrd());
+        System.out.println("Supposed synligtord: " + galgelogik.getSynligtOrd());
         guessedLetters.setText("[]");
         currentGalgeImage.setImageResource(R.drawable.galge);
     }

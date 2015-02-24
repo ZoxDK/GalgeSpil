@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="language_entries">
-        <item>Danish</item>
+        <item>Dansk</item>
         <item>English</item>
     </string-array>
     <string-array name="language_values">
         <item>Dansk</item>
-        <item>Engelsk</item>
+        <item>English</item>
     </string-array>
 </resources>

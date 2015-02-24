@@ -19,7 +19,7 @@ import android.widget.Toast;
 public class MainActivity extends ActionBarActivity implements OnClickListener {
     //Declares
     private SharedPreferences sharedPrefs;
-    private Button newGameButton, savedGameButton, settingsButton, exitButton;
+    private Button newGameButton, savedGameButton, settingsButton;
     private AlertDialog.Builder builder;
     private boolean isThereSavedGame;
 
@@ -48,14 +48,12 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
         newGameButton = (Button) findViewById(R.id.newGameButton);
         savedGameButton = (Button) findViewById(R.id.savedGameButton);
         settingsButton = (Button) findViewById(R.id.settingsButton);
-        //exitButton = (Button) findViewById(R.id.exitButton);
 
         newGameButton.setOnClickListener(this);
         savedGameButton.setOnClickListener(this);
         settingsButton.setOnClickListener(this);
-        //exitButton.setOnClickListener(this);
 
-        //End of game alert dialog
+        //Trying to start a new game while there is a saved game alert dialog
         builder = new AlertDialog.Builder(this);
         builder.setPositiveButton(R.string.action_newgame, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
@@ -92,12 +90,9 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
         if (id == R.id.action_settings) {
             Intent intent = new Intent(this, Settings_Act.class);
             startActivity(intent);
-        } else if (id == R.id.action_newgame){
+        } else if (id == R.id.action_newgame) {
             startNewGame();
-        } /*else if (id == R.id.action_exit){
-            android.os.Process.killProcess(android.os.Process.myPid());
-            System.exit(1);
-        }*/
+        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -117,10 +112,7 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
         } else if (v == settingsButton){
             Intent intent = new Intent(this, Settings_Act.class);
             startActivity(intent);
-        } /* else if (v == exitButton){
-            android.os.Process.killProcess(android.os.Process.myPid());
-            System.exit(1);
-        }*/
+        }
 
     }
 
@@ -136,7 +128,7 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
             intent.putExtra("GAME_TYPE", "LOAD");
             startActivity(intent);
         }else {
-            Toast.makeText(this, "There is no saved game. Start new game!", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "There is no saved game. Start a new game!", Toast.LENGTH_LONG).show();
         }
     }
 
