@@ -33,18 +33,6 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
         sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         isThereSavedGame = sharedPrefs.getBoolean("saved_game", false);
-        System.out.println("saved_game = " + sharedPrefs.getBoolean("saved_game", false));
-
-        SharedPreferences.OnSharedPreferenceChangeListener listener =
-                new SharedPreferences.OnSharedPreferenceChangeListener()
-                {
-                    public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
-                        if (key.equals("saved_game")) {
-                            isThereSavedGame = sharedPrefs.getBoolean("saved_game", false);
-                        }
-                    }
-                };
-        sharedPrefs.registerOnSharedPreferenceChangeListener(listener);
 
         newGameButton = (Button) findViewById(R.id.newGameButton);
         chooseWordButton = (Button) findViewById(R.id.chooseWordButton);

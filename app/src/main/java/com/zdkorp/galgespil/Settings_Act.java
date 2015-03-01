@@ -57,6 +57,8 @@ public class Settings_Act extends PreferenceActivity implements SharedPreference
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        } else {
+            MyApp.getLogic().fjernOrdFraDr();
         }
     }
 }

@@ -158,12 +158,20 @@ public class Galgelogik {
               replaceAll(" . "," "). // fjern 1-bogstavsord
               replaceAll(" .. "," "); // fjern 2-bogstavsord
     System.out.println("data = "+data);
+    saveArray(muligeOrd, "offlineWords", MyApp.getContext());
     muligeOrd.clear();
     muligeOrd.addAll(new HashSet<String>(Arrays.asList(data.split(" "))));
 
     System.out.println("muligeOrd = "+muligeOrd);
     nulstil();
   }
+    public void fjernOrdFraDr(){
+        muligeOrd.clear();
+        muligeOrd.addAll(loadArray("offlineWords", MyApp.getContext()));
+
+        System.out.println("muligeOrd = "+muligeOrd);
+    }
+
     public void loadGame(Context mContext){
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
         brugteBogstaver = loadArray("brugtebogstaver", mContext);
