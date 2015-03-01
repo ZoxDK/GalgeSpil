@@ -4,6 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools" tools:context=".Game_Act">
     <item android:id="@+id/action_newgame" android:title="@string/action_newgame"
         android:orderInCategory="100" app:showAsAction="ifRoom" />
+    <item android:id="@+id/action_chosenword" android:title="@string/action_chosenword"
+        android:orderInCategory="100" app:showAsAction="ifRoom" />
     <item android:id="@+id/action_savegame" android:title="@string/action_savegame"
         android:orderInCategory="101" app:showAsAction="ifRoom" />
     <item android:id="@+id/action_settings" android:title="@string/action_settings"

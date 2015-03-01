@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">GalgeSpil</string>
+
+    <string name="yes">Ja</string>
+    <string name="no">Nej</string>
+
     <string name="action_settings">Indstillinger</string>
     <string name="action_newgame">Nyt spil</string>
+    <string name="action_chosenword">Vælg ord</string>
     <string name="action_loadgame">Hent spil</string>
     <string name="action_savegame">Gem spil</string>
     <string name="action_exit">Exit</string>
@@ -15,4 +20,7 @@
     <string name="cursewords_summary">Tillad bandeord i spillet</string>
     <string name="dr_words">Ord fra DR.dk</string>
     <string name="dr_words_summary">Brug ord fra DR\'s hjemmeside (kræver internet!)</string>
+    <string name="title_activity_word_list">WordList</string>
+
+    <string name="hello_world">Hello world!</string>
 </resources>

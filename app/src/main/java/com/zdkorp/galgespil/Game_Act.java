@@ -6,7 +6,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
-import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -26,15 +25,15 @@ import java.util.ArrayList;
 public class Game_Act extends ActionBarActivity implements OnClickListener {
     //Declares
     private SharedPreferences sharedPrefs;
-    private Galgelogik galgelogik = new Galgelogik();
+    private Galgelogik galgelogik = MyApp.getLogic();
     private TextView currentWord, guessedLetters;
     private EditText letterToGuess;
     private Button guessButton;
     private ImageView currentGalgeImage;
     private ArrayList<Integer> images = new ArrayList<>();
-    private AlertDialog.Builder builder;
+    private AlertDialog.Builder endOfGameAlert, overWriteSave;
     ColorStateList textviewColor;
-    String value = "";
+    String gameType = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,44 +56,69 @@ public class Game_Act extends ActionBarActivity implements OnClickListener {
 
         guessButton.setOnClickListener(this);
 
+        //----------------
         //End of game alert dialog
-        builder = new AlertDialog.Builder(this);
-        builder.setPositiveButton(R.string.action_newgame, new DialogInterface.OnClickListener() {
+        endOfGameAlert = new AlertDialog.Builder(this);
+        endOfGameAlert.setPositiveButton(R.string.action_newgame, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 newGame();
                 dialog.cancel();
             }
         });
 
-        builder.setNeutralButton(R.string.action_show_word, new DialogInterface.OnClickListener() {
+        endOfGameAlert.setNeutralButton(R.string.action_show_word, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 currentWord.setTextColor(Color.RED);
                 currentWord.setText(galgelogik.getOrdet());
-
             }
         });
 
-        builder.setNegativeButton(R.string.action_exit, new DialogInterface.OnClickListener() {
+        endOfGameAlert.setNegativeButton(R.string.action_exit, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 android.os.Process.killProcess(android.os.Process.myPid());
                 finish();
                 dialog.cancel();
-
             }
         }); // /end of game dialog
+        //----------------
+
+        //----------------
+        //Overwrite savegame alert dialog
+        overWriteSave = new AlertDialog.Builder(this);
+        overWriteSave.setTitle("Gemt spil eksisterer allerede");
+        overWriteSave.setMessage("Der er allerede et gemt spil. Overskriv?");
+        overWriteSave.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                saveGame();
+                dialog.cancel();
+            }
+        });
+
+        overWriteSave.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                dialog.cancel();
+            }
+        });
+        // /overwrite savegame dialog
+        //----------------
 
         //Game type chosen in Main menu
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            value = extras.getString("GAME_TYPE");
+            gameType = extras.getString("GAME_TYPE");
         }
-        switch (value){
+        switch (gameType){
             case "NEW":
                 newGame();
                 break;
 
+            case "CHOSEN":
+                String word = extras.getString("CHOSEN_WORD");
+                newGameWithChosenWord(word);
+                break;
+
             case "LOAD":
-                loadGame(); //Load is not implemented yet, starting new game!
+                loadGame();
                 break;
 
             default:
@@ -102,35 +126,9 @@ public class Game_Act extends ActionBarActivity implements OnClickListener {
                 break;
         }
 
-        // Get words from DR.dk
-        if (sharedPrefs.getBoolean("dr_words", false)) {
-            try {
-                setSupportProgressBarIndeterminateVisibility(true);
-                new AsyncTask() {
-                    @Override
-                    protected Object doInBackground(Object... arg0) {
-                        try {
-                            galgelogik.hentOrdFraDr();
-                            return "Ordene blev korrekt hentet fra DR's server";
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            return "Ordene blev ikke hentet korrekt: " + e;
-                        }
-                    }
 
-                    @Override
-                    protected void onPostExecute(Object resultat) {
-                        System.out.println("resultat: \n" + resultat);
-                        currentWord.setText(galgelogik.getSynligtOrd());
-                        setSupportProgressBarIndeterminateVisibility(false);
-                    }
-                }.execute();
-            } catch (Exception e) {
-                e.printStackTrace();
-                setSupportProgressBarIndeterminateVisibility(false);
-            }
-        }
     }
+
 
 
     @Override
@@ -151,17 +149,20 @@ public class Game_Act extends ActionBarActivity implements OnClickListener {
 
         if (id == R.id.action_newgame){
             newGame();
+        } else if (id == R.id.action_chosenword) {
+            Intent intent = new Intent(this, WordList_Act.class);
+            startActivityForResult(intent, 1);
         } else if (id == R.id.action_settings) {
             Intent intent = new Intent(this, Settings_Act.class);
             startActivity(intent);
         }  else if (id == R.id.action_savegame) {
-            galgelogik.saveArray(galgelogik.getBrugteBogstaver(), "brugtebogstaver", this);
-            sharedPrefs.edit()
-                    .putString("ordet", galgelogik.getOrdet())
-                    .putInt("antalforkertebogstaver", galgelogik.getAntalForkerteBogstaver())
-                    .putBoolean("saved_game", true)
-                    .apply();
-            System.out.println("saved_game = " + sharedPrefs.getBoolean("saved_game", false));
+            // Check if there's a saved game already
+            if(sharedPrefs.getBoolean("saved_game", false)) {
+                //Start alert to ask player if they want to save anyway
+                overWriteSave.create().show();
+            } else {
+                saveGame();
+            }
         } else if (id == R.id.action_exit){
             finish();
         }
@@ -181,20 +182,20 @@ public class Game_Act extends ActionBarActivity implements OnClickListener {
             if (galgelogik.erSidsteBogstavKorrekt()) {
                 currentWord.setText(galgelogik.getSynligtOrd());
             } else {
-                currentGalgeImage.setImageResource(images.get(galgelogik.getAntalForkerteBogstaver()-1));
+                currentGalgeImage.setImageResource(images.get(galgelogik.getAntalForkerteBogstaver()));
             }
             guessedLetters.setText(galgelogik.getBrugteBogstaver().toString());
             letterToGuess.setText("");
             galgelogik.logStatus();
 
             if (galgelogik.erSpilletVundet()){
-                builder.setTitle("Du har vundet!");
-                builder.setMessage("Du har vundet spillet! Spil igen?");
-                builder.create().show();
+                endOfGameAlert.setTitle("Du har vundet!");
+                endOfGameAlert.setMessage("Du har vundet spillet! Spil igen?");
+                endOfGameAlert.create().show();
             } else if (galgelogik.erSpilletTabt()){
-                builder.setTitle("Du har tabt!");
-                builder.setMessage("Du har tabt spillet! Spil igen?");
-                builder.create().show();
+                endOfGameAlert.setTitle("Du har tabt!");
+                endOfGameAlert.setMessage("Du har tabt spillet! Spil igen?");
+                endOfGameAlert.create().show();
             }
 
         }
@@ -204,7 +205,14 @@ public class Game_Act extends ActionBarActivity implements OnClickListener {
         galgelogik.nulstil();
         currentWord.setTextColor(textviewColor);
         currentWord.setText(galgelogik.getSynligtOrd());
-        System.out.println("Supposed synligtord: " + galgelogik.getSynligtOrd());
+        guessedLetters.setText("[]");
+        currentGalgeImage.setImageResource(R.drawable.galge);
+    }
+
+    private void newGameWithChosenWord(String word) {
+        galgelogik.resetWithChosenWord(word);
+        currentWord.setTextColor(textviewColor);
+        currentWord.setText(galgelogik.getSynligtOrd());
         guessedLetters.setText("[]");
         currentGalgeImage.setImageResource(R.drawable.galge);
     }
@@ -216,11 +224,33 @@ public class Game_Act extends ActionBarActivity implements OnClickListener {
         galgelogik.loadGame(this);
         galgelogik.opdaterSynligtOrd();
         currentWord.setText(galgelogik.getSynligtOrd());
-        guessedLetters.setText("[]");
-        currentGalgeImage.setImageResource(R.drawable.galge);
+        guessedLetters.setText(galgelogik.getBrugteBogstaver().toString());
+        currentGalgeImage.setImageResource(images.get(galgelogik.getAntalForkerteBogstaver()));
+    }
+
+    private void saveGame(){
+        galgelogik.saveArray(galgelogik.getBrugteBogstaver(), "brugtebogstaver", this);
+        sharedPrefs.edit()
+                .putString("ordet", galgelogik.getOrdet())
+                .putInt("antalforkertebogstaver", galgelogik.getAntalForkerteBogstaver())
+                .putBoolean("saved_game", true)
+                .commit();
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (requestCode == 1) {
+            if(resultCode == RESULT_OK){
+                newGameWithChosenWord(data.getExtras().getString("CHOSEN_WORD"));
+            }
+            if (resultCode == RESULT_CANCELED) {
+                return;
+            }
+        }
     }
 
     private void  initializeArray (){
+        images.add(R.drawable.galge);
         images.add(R.drawable.forkert1);
         images.add(R.drawable.forkert2);
         images.add(R.drawable.forkert3);

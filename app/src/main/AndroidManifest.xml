@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.zdkorp.galgespil" >
-
     //Permissions
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
+        android:name=".MyApp"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
@@ -19,8 +19,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Game_Act"/>
-        <activity android:name=".Settings_Act"/>
+        <activity android:name=".Game_Act" />
+        <activity android:name=".Settings_Act" />
+        <activity
+            android:name=".WordList_Act"
+            android:label="@string/title_activity_word_list" >
+        </activity>
     </application>
 
 </manifest>

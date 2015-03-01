@@ -19,7 +19,7 @@ import android.widget.Toast;
 public class MainActivity extends ActionBarActivity implements OnClickListener {
     //Declares
     private SharedPreferences sharedPrefs;
-    private Button newGameButton, savedGameButton, settingsButton;
+    private Button newGameButton, savedGameButton, settingsButton, chooseWordButton;
     private AlertDialog.Builder builder;
     private boolean isThereSavedGame;
 
@@ -46,10 +46,12 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
         sharedPrefs.registerOnSharedPreferenceChangeListener(listener);
 
         newGameButton = (Button) findViewById(R.id.newGameButton);
+        chooseWordButton = (Button) findViewById(R.id.chooseWordButton);
         savedGameButton = (Button) findViewById(R.id.savedGameButton);
         settingsButton = (Button) findViewById(R.id.settingsButton);
 
         newGameButton.setOnClickListener(this);
+        chooseWordButton.setOnClickListener(this);
         savedGameButton.setOnClickListener(this);
         settingsButton.setOnClickListener(this);
 
@@ -57,7 +59,7 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
         builder = new AlertDialog.Builder(this);
         builder.setPositiveButton(R.string.action_newgame, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                startNewGame();
+                newGame();
                 dialog.cancel();
             }
         });
@@ -91,7 +93,7 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
             Intent intent = new Intent(this, Settings_Act.class);
             startActivity(intent);
         } else if (id == R.id.action_newgame) {
-            startNewGame();
+            newGame();
         }
 
         return super.onOptionsItemSelected(item);
@@ -105,8 +107,10 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
                 builder.setMessage("Der er et gemt spil. Vil du starte et nyt?");
                 builder.create().show();
             } else {
-                startNewGame();
+                newGame();
             }
+        } else if (v == chooseWordButton){
+            newGameWithChosenWord();
         } else if (v == savedGameButton){
             loadSavedGame();
         } else if (v == settingsButton){
@@ -116,10 +120,15 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
 
     }
 
-    private void startNewGame(){
+    private void newGame(){
         Intent intent = new Intent(this, Game_Act.class);
         intent.putExtra("GAME_TYPE", "NEW");
         startActivity(intent);
+    }
+
+    private void newGameWithChosenWord(){
+        Intent intent = new Intent(this, WordList_Act.class);
+        startActivityForResult(intent, 1);
     }
 
     private void loadSavedGame(){
@@ -129,6 +138,21 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
             startActivity(intent);
         }else {
             Toast.makeText(this, "There is no saved game. Start a new game!", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (requestCode == 1) {
+            if(resultCode == RESULT_OK){
+                Intent intent = new Intent(this, Game_Act.class);
+                intent.putExtra("GAME_TYPE", "CHOSEN");
+                intent.putExtra("CHOSEN_WORD", data.getExtras().getString("CHOSEN_WORD"));
+                startActivity(intent);
+            }
+            if (resultCode == RESULT_CANCELED) {
+                return;
+            }
         }
     }
 

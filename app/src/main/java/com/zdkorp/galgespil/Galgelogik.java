@@ -12,7 +12,9 @@ import java.util.HashSet;
 import java.util.Random;
 
 public class Galgelogik {
-  private ArrayList<String> muligeOrd  = new ArrayList<>();
+
+
+    private ArrayList<String> muligeOrd  = new ArrayList<>();
   private String ordet;
   private ArrayList<String> brugteBogstaver = new ArrayList<>();
   private String synligtOrd;
@@ -54,6 +56,9 @@ public class Galgelogik {
     return spilletErTabt || spilletErVundet;
   }
 
+  public ArrayList<String> getMuligeOrd() {
+    return muligeOrd;
+  }
 
   public Galgelogik() {
     muligeOrd.add("bil");
@@ -76,6 +81,14 @@ public class Galgelogik {
     opdaterSynligtOrd();
   }
 
+    public void resetWithChosenWord(String word) {
+        brugteBogstaver.clear();
+        antalForkerteBogstaver = 0;
+        spilletErVundet = false;
+        spilletErTabt = false;
+        ordet = word;
+        opdaterSynligtOrd();
+    }
 
   public void opdaterSynligtOrd() {
     synligtOrd = "";
@@ -139,7 +152,6 @@ public class Galgelogik {
 
   public void hentOrdFraDr() throws IOException {
     String data = hentUrl("http://dr.dk");
-    System.out.println("data = "+data);
 
     data = data.substring(data.indexOf("<body")).
               replaceAll("<.+?>", " ").toLowerCase().replaceAll("[^a-zæøå]", " ").
@@ -155,7 +167,6 @@ public class Galgelogik {
     public void loadGame(Context mContext){
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
         brugteBogstaver = loadArray("brugtebogstaver", mContext);
-        System.out.println("antalforkertebogstaver = " + prefs.getInt("antalforkertebogstaver", 0));
         antalForkerteBogstaver = prefs.getInt("antalforkertebogstaver", 0);
         ordet = prefs.getString("ordet", "");
 
@@ -165,18 +176,20 @@ public class Galgelogik {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
         SharedPreferences.Editor editor = prefs.edit();
         editor.putInt(arrayName +"_size", array.size());
-        for(int i=0;i<array.size();i++)
+        for(int i=0;i<array.size();i++) {
             editor.putString(arrayName + "_" + i, array.get(i));
+        }
         return editor.commit();
     }
 
     public ArrayList<String> loadArray(String arrayName, Context mContext) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
-        int size = prefs.getInt(arrayName + "_size", 0);
+        int size = prefs.getInt(arrayName + "_size", -1);
         ArrayList<String> array = new ArrayList<String>(size);
-        if (array.size()>0){
-            for(int i=0;i<size;i++)
-                array.set(i, prefs.getString(arrayName + "_" + i, null));
+        if (size>0){
+            for(int i=0;i<size;i++) {
+                array.add(i, prefs.getString(arrayName + "_" + i, null));
+            }
         }
         return array;
     }
