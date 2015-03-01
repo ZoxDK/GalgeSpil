@@ -58,7 +58,8 @@ public class WordList_Act extends ActionBarActivity implements OnItemClickListen
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            return true;
+            Intent intent = new Intent(this, Settings_Act.class);
+            startActivity(intent);
         }
 
         return super.onOptionsItemSelected(item);

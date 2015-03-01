@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -71,6 +72,31 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
 
             }
         });
+
+        // Get words from DR.dk
+        if (sharedPrefs.getBoolean("dr_words", false)) {
+            try {
+                new AsyncTask() {
+                    @Override
+                    protected Object doInBackground(Object... arg0) {
+                        try {
+                            MyApp.getLogic().hentOrdFraDr();
+                            return "Ordene blev korrekt hentet fra DR's server";
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            return "Ordene blev ikke hentet korrekt: " + e;
+                        }
+                    }
+
+                    @Override
+                    protected void onPostExecute(Object resultat) {
+                        System.out.println("resultat: \n" + resultat);
+                    }
+                }.execute();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 
