@@ -154,7 +154,11 @@ public class Galgelogik {
     String data = hentUrl("http://dr.dk");
 
     data = data.substring(data.indexOf("<body")).
-              replaceAll("<.+?>", " ").toLowerCase().replaceAll("[^a-zæøå]", " ").
+              replaceAll("<.+?>", " ").toLowerCase().
+              replaceAll("&#230;","æ"). // replace coded æ, ø and å
+              replaceAll("&#248;","ø").
+              replaceAll("&#229;", "å").
+              replaceAll("[^a-zæøå]", " "). // replace all non-letters
               replaceAll(" . "," "). // fjern 1-bogstavsord
               replaceAll(" .. "," "); // fjern 2-bogstavsord
     System.out.println("data = "+data);
